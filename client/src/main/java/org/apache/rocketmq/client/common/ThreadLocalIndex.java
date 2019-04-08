@@ -31,7 +31,7 @@ public class ThreadLocalIndex {
                 index = 0;
             this.threadLocalIndex.set(index);
         }
-
+        //边界值的处理
         index = Math.abs(index + 1);
         if (index < 0)
             index = 0;

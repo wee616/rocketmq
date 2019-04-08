@@ -16,8 +16,6 @@
  */
 package org.apache.rocketmq.example.ordermessage;
 
-import java.io.UnsupportedEncodingException;
-import java.util.List;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -29,9 +27,16 @@ import org.apache.rocketmq.common.message.MessageQueue;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+/**
+ * wuyc 顺序消息 发布者
+ */
 public class Producer {
     public static void main(String[] args) throws UnsupportedEncodingException {
         try {
+            //producer的初始化，默认线程池数量为处理器数量
             MQProducer producer = new DefaultMQProducer("please_rename_unique_group_name");
             producer.start();
 

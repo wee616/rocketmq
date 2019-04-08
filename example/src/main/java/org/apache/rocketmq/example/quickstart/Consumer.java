@@ -16,7 +16,6 @@
  */
 package org.apache.rocketmq.example.quickstart;
 
-import java.util.List;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
@@ -24,6 +23,8 @@ import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.MessageExt;
+
+import java.util.List;
 
 /**
  * This example shows how to subscribe and consume messages using providing {@link DefaultMQPushConsumer}.
@@ -35,6 +36,15 @@ public class Consumer {
         /*
          * Instantiate with specified consumer group name.
          */
+        //1、Broker与Consumer之间的消息传送有两种方式：推模式、拉模式
+        //推模式：Broker向Consumer推送消息
+        //拉模式：Consumer主动向Broker拉消息
+        //RocketMQ的推模式是基于拉模式，在拉模式上包装了一层，一个拉取任务完成后开始下一个拉取任务。
+
+        //2、一个消费者组可以包含多个消费者，每个消费者都可以订阅多个主题。
+        //消费者组的消费模式有：集群模式、广播模式
+        //集群模式：topic下的同一条消息只允许被同一个消费者组下的一个消费者消费。
+        //广播模式：topic下的同一条消息可以被同一个消费者组下的所有消费者消费。
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name_4");
 
         /*
@@ -48,16 +58,18 @@ public class Consumer {
          * }
          * </pre>
          */
-
+        consumer.setNamesrvAddr("127.0.0.1:9876");
         /*
          * Specify where to start in case the specified consumer group is a brand new one.
          */
+        //设置消息进度
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 
         /*
          * Subscribe one more more topics to consume.
          */
-        consumer.subscribe("TopicTest", "*");
+        //设置订阅信息
+        consumer.subscribe("TopicTestwuyc", "*");
 
         /*
          *  Register callback to execute on arrival of messages fetched from brokers.
