@@ -69,7 +69,7 @@ public class Consumer {
          * Subscribe one more more topics to consume.
          */
         //设置订阅信息
-        consumer.subscribe("TopicTestwuyc", "*");
+        consumer.subscribe("TopicTestwuyc", "TagA");
 
         /*
          *  Register callback to execute on arrival of messages fetched from brokers.

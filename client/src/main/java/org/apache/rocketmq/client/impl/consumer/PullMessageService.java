@@ -16,16 +16,17 @@
  */
 package org.apache.rocketmq.client.impl.consumer;
 
+import org.apache.rocketmq.client.impl.factory.MQClientInstance;
+import org.apache.rocketmq.client.log.ClientLogger;
+import org.apache.rocketmq.common.ServiceThread;
+import org.apache.rocketmq.common.utils.ThreadUtils;
+import org.apache.rocketmq.logging.InternalLogger;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import org.apache.rocketmq.client.impl.factory.MQClientInstance;
-import org.apache.rocketmq.client.log.ClientLogger;
-import org.apache.rocketmq.common.ServiceThread;
-import org.apache.rocketmq.logging.InternalLogger;
-import org.apache.rocketmq.common.utils.ThreadUtils;
 
 public class PullMessageService extends ServiceThread {
     private final InternalLogger log = ClientLogger.getLog();
@@ -43,6 +44,7 @@ public class PullMessageService extends ServiceThread {
         this.mQClientFactory = mQClientFactory;
     }
 
+    //延时添加拉取任务
     public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
         if (!isStopped()) {
             this.scheduledExecutorService.schedule(new Runnable() {
@@ -56,6 +58,7 @@ public class PullMessageService extends ServiceThread {
         }
     }
 
+    //立即添加拉取任务
     public void executePullRequestImmediately(final PullRequest pullRequest) {
         try {
             this.pullRequestQueue.put(pullRequest);
@@ -79,6 +82,7 @@ public class PullMessageService extends ServiceThread {
     private void pullMessage(final PullRequest pullRequest) {
         final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
         if (consumer != null) {
+            //这里将获取到的consumer强转为DefaultMQPushConsumerImpl
             DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
             impl.pullMessage(pullRequest);
         } else {
@@ -86,13 +90,17 @@ public class PullMessageService extends ServiceThread {
         }
     }
 
+    //消息拉取的入口
     @Override
     public void run() {
         log.info(this.getServiceName() + " service started");
 
+        //volatile修饰，每次都重新检测此值，可通过其他线程修改此值，停止线程。
         while (!this.isStopped()) {
             try {
+                //从pullRequestQueue中获取拉取任务，如果获取不到，线程阻塞，直到有任务可被拉取
                 PullRequest pullRequest = this.pullRequestQueue.take();
+                //根据拉取任务拉取消息
                 this.pullMessage(pullRequest);
             } catch (InterruptedException ignored) {
             } catch (Exception e) {

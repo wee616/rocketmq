@@ -31,7 +31,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
- * wuyc 顺序消息 发布者
+ * 顺序消息 发布者
  */
 public class Producer {
     public static void main(String[] args) throws UnsupportedEncodingException {
